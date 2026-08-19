@@ -26,7 +26,7 @@ Seeker contacts Employer via WhatsApp without an account. Encode `wa.me` only in
 
 ### seam
 
-Callers and tests cross ListingCatalog, ExpressInterest, and ListingPost. Pages do not own pricing, filter, or WhatsApp rules.
+Callers and tests cross ListingCatalog, ExpressInterest, ListingPost, InterestLog, ListingReport, ListingShare, EventLog, and AlertWatch. Pages do not own pricing, Town clusters, filter, WhatsApp, or funnel counts.
 
 ### wayfinder
 

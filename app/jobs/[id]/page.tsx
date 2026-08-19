@@ -1,19 +1,35 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { use, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { formatListingType } from "@/components/listing-format"
+import {
+  formatClosesAt,
+  formatListingPay,
+  formatListingType,
+  formatStartDate,
+} from "@/components/listing-format"
 import { getCatalog } from "@/components/listing-store"
+import { actorKey, getEventLog, getInterestLog, getReportLog } from "@/components/product-store"
 import { open } from "@/lib/express-interest"
+import { facebookShareUrl, whatsappShareUrl } from "@/lib/listing-share"
+import { REPORT_REASONS, type ReportReason } from "@/lib/listing-report"
 import { useAuth } from "@/lib/auth-context"
 import { MOCK_APPLICATIONS, getCompanyById } from "@/lib/mock-data"
 import type { Listing } from "@/lib/listing"
 import { ArrowLeft, CheckCircle } from "lucide-react"
+
+const REPORT_LABELS: Record<ReportReason, string> = {
+  "fee-to-apply": "They asked me to pay to apply",
+  scam: "Looks like a scam or fake Employer",
+  "under-minimum": "Pay is below FJD 5.00/hour",
+  unsafe: "Unsafe or trafficking-adjacent",
+  other: "Something else",
+}
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -23,18 +39,29 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const [showApplicationForm, setShowApplicationForm] = useState(false)
   const [applicationSubmitted, setApplicationSubmitted] = useState(false)
   const [coverLetter, setCoverLetter] = useState("")
+  const [interestError, setInterestError] = useState("")
+  const [reportReason, setReportReason] = useState<ReportReason>("fee-to-apply")
+  const [reportNote, setReportNote] = useState("")
+  const [origin, setOrigin] = useState("")
 
   useEffect(() => {
+    setOrigin(window.location.origin)
     let cancelled = false
     getCatalog()
       .getById(id)
       .then((found) => {
         if (!cancelled) setListing(found ?? null)
+        if (found) getEventLog().track({ name: "listing_view", listingId: found.id })
       })
     return () => {
       cancelled = true
     }
   }, [id])
+
+  const interestUrl = useMemo(
+    () => (listing ? open({ listing, seekerName: user?.name }) : ""),
+    [listing, user?.name],
+  )
 
   if (listing === undefined) {
     return (
@@ -59,11 +86,40 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
     )
   }
 
-  const company = getCompanyById(listing.employerId)
-  const interestUrl = open({ listing, seekerName: user?.name })
+  const liveListing = listing
+  const company = getCompanyById(liveListing.employerId)
   const hasApplied = MOCK_APPLICATIONS.some(
     (app) => app.jobId === id && app.userId === user?.id,
   )
+  const shareOrigin = origin || "https://vitiwork.com"
+  const facebookUrl = facebookShareUrl(liveListing, shareOrigin)
+  const whatsappUrl = whatsappShareUrl(liveListing, shareOrigin)
+  const startLabel = formatStartDate(liveListing.startDate)
+
+  function onExpressInterest(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault()
+    setInterestError("")
+    try {
+      getInterestLog().record({
+        listingId: liveListing.id,
+        employerId: liveListing.employerId,
+        listingTitle: liveListing.title,
+        seekerName: user?.name,
+        actorKey: actorKey(),
+      })
+      getEventLog().track({ name: "express_interest", listingId: liveListing.id })
+      window.open(interestUrl, "_blank", "noopener,noreferrer")
+    } catch (error) {
+      setInterestError(error instanceof Error ? error.message : "Could not open WhatsApp")
+    }
+  }
+
+  function onReport(event: React.FormEvent) {
+    event.preventDefault()
+    getReportLog().submit({ listingId: liveListing.id, reason: reportReason })
+    getEventLog().track({ name: "listing_report", listingId: liveListing.id })
+    setReportNote("Report received. We hide fee-to-apply and unsafe Listings after review.")
+  }
 
   const handleApplyWithProfile = () => {
     if (!isAuthenticated) {
@@ -118,14 +174,17 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
         <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-muted">Listing</p>
         <h1 className="text-[clamp(1.6rem,4vw,2.2rem)] font-bold tracking-tight">{listing.title}</h1>
-        <p className="mt-2 text-[1.05rem] text-muted">{listing.employerName}</p>
+        <p className="mt-2 text-[1.05rem] text-muted">
+          {listing.employerName}
+          {listing.verifiedEmployer ? " · Verified Employer" : ""}
+        </p>
 
         <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
           <div className="rounded-[10px] bg-surface px-3 py-2.5">
             <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
               Pay
             </span>
-            <strong className="text-[0.9rem] font-semibold">{listing.pay || "Pay on enquiry"}</strong>
+            <strong className="text-[0.9rem] font-semibold">{formatListingPay(listing)}</strong>
           </div>
           <div className="rounded-[10px] bg-surface px-3 py-2.5">
             <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
@@ -135,9 +194,18 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </div>
           <div className="rounded-[10px] bg-surface px-3 py-2.5">
             <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
+              Start
+            </span>
+            <strong className="text-[0.9rem] font-semibold">{startLabel ?? "Ask on WhatsApp"}</strong>
+          </div>
+          <div className="rounded-[10px] bg-surface px-3 py-2.5">
+            <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
               Type
             </span>
-            <strong className="text-[0.9rem] font-semibold">{formatListingType(listing.type)}</strong>
+            <strong className="text-[0.9rem] font-semibold">
+              {formatListingType(listing.type)}
+              {listing.liveIn ? " · Live-in" : ""}
+            </strong>
           </div>
           <div className="rounded-[10px] bg-surface px-3 py-2.5">
             <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
@@ -147,17 +215,30 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </div>
           <div className="rounded-[10px] bg-surface px-3 py-2.5">
             <span className="mb-1 block text-[0.68rem] font-semibold uppercase tracking-wider text-muted">
-              Expires
+              Closes
             </span>
-            <strong className="text-[0.9rem] font-semibold">{listing.expiresAt}</strong>
+            <strong className="text-[0.9rem] font-semibold">{formatClosesAt(listing.expiresAt)}</strong>
           </div>
         </div>
+
+        {listing.shiftNote ? (
+          <p className="mt-3 text-sm text-ink">Shift: {listing.shiftNote}</p>
+        ) : null}
+        {listing.language || (listing.licences && listing.licences.length > 0) ? (
+          <p className="mt-1 text-sm text-muted">
+            {listing.language ? `Language: ${listing.language}` : ""}
+            {listing.licences && listing.licences.length > 0
+              ? `${listing.language ? " · " : ""}Licence: ${listing.licences.join(", ")}`
+              : ""}
+          </p>
+        ) : null}
 
         <div className="mt-6 grid gap-2">
           <a
             href={interestUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={onExpressInterest}
             className="inline-flex min-h-12 items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-surface hover:bg-accent/90"
           >
             Express Interest on WhatsApp
@@ -174,8 +255,30 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           )}
         </div>
         <p className="mt-3 text-sm text-muted">
-          Express Interest opens WhatsApp. No account required.
+          Express Interest opens WhatsApp. No account required. You never pay VitiWork or the Employer to say you are interested.
         </p>
+        {interestError ? <p className="mt-2 text-sm text-red-700">{interestError}</p> : null}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => getEventLog().track({ name: "whatsapp_share", listingId: listing.id })}
+            className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold"
+          >
+            Share on WhatsApp
+          </a>
+          <a
+            href={facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => getEventLog().track({ name: "facebook_share", listingId: listing.id })}
+            className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold"
+          >
+            Share on Facebook
+          </a>
+        </div>
 
         {showApplicationForm && !hasApplied && (
           <Card className="mt-6">
@@ -248,6 +351,32 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
             </div>
           )}
         </section>
+
+        <form onSubmit={onReport} className="mt-10 rounded-2xl border border-line bg-surface p-5">
+          <h2 className="text-[1.05rem] font-semibold">Report this Listing</h2>
+          <p className="mt-1 text-sm text-muted">
+            Seekers never pay to Express Interest. Tell us if someone asks for a fee, or if this looks unsafe.
+          </p>
+          <label className="mt-3 block text-[0.8rem] font-semibold" htmlFor="report-reason">
+            Reason
+          </label>
+          <select
+            id="report-reason"
+            value={reportReason}
+            onChange={(event) => setReportReason(event.target.value as ReportReason)}
+            className="mt-1 min-h-11 w-full rounded-[10px] border border-line bg-bg px-3.5 text-base"
+          >
+            {REPORT_REASONS.map((reason) => (
+              <option key={reason} value={reason}>
+                {REPORT_LABELS[reason]}
+              </option>
+            ))}
+          </select>
+          <Button type="submit" variant="outline" size="sm" className="mt-3">
+            Send report
+          </Button>
+          {reportNote ? <p className="mt-2 text-sm text-ink">{reportNote}</p> : null}
+        </form>
       </main>
 
       <SiteFooter />

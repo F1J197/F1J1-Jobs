@@ -7,3 +7,5 @@ Pages must not own search rules, `wa.me` encoding, or Free First Post / expiry. 
 - **ListingPost** — `publish({ employer, draft }) → Listing`.
 
 One adapter is a hypothetical seam. Two adapters make ListingCatalog a real seam. TDD tests only these interfaces, not page internals.
+
+Launch seams that sit beside these three are in [0006](./0006-fiji-launch-seams.md).

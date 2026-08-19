@@ -23,9 +23,14 @@ export const metadata: Metadata = {
   keywords: ["jobs in fiji", "vitiwork", "fiji careers", "whatsapp jobs fiji"],
   authors: [{ name: "VitiWork" }],
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "VitiWork",
+    statusBarStyle: "default",
+  },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/icon.svg",
+    apple: "/icon.svg",
   },
   openGraph: {
     type: "website",

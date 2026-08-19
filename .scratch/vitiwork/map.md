@@ -12,7 +12,7 @@ A published VitiWork spec plus a ticketed path so a Fijian Seeker can find a Lis
 - Skills every session should consult: `wayfinder`, `research`, `domain-modeling`, `to-spec`, `to-tickets`, `tdd`.
 - Tracker is local markdown under `.scratch/vitiwork/` (`docs/agents/issue-tracker.md`). `gh` is read-only.
 - [SynapseX-vault](https://github.com/F1J197/SynapseX-vault) is read-only. Copy into `docs/product/`; never edit the vault.
-- Published spec: [spec.md](./spec.md) (`Status: ready-for-agent`). Implementation tickets are `10`–`17` under `issues/`.
+- Published spec: [spec.md](./spec.md) (`Status: ready-for-agent`). Implementation tickets are `10`–`17` under `issues/`. Launch sequence `18`–`27` is [docs/product/launch-roadmap.md](../../docs/product/launch-roadmap.md).
 
 ## Decisions so far
 
@@ -28,12 +28,15 @@ A published VitiWork spec plus a ticketed path so a Fijian Seeker can find a Lis
 
 ## Not yet specified
 
-- How payments for Standard and Featured actually settle (provider, prepaid vs invoice, failed charge).
-- WhatsApp Business API vs `wa.me` deep-link for production Express Interest.
-- Facebook login details (app review, which fields, fallback when Facebook is down).
+- How payments for Standard and Featured actually settle (provider, prepaid vs invoice, failed charge). Price stays on the page until then.
+- Facebook login details (app review, which fields, fallback when Facebook is down). Google OAuth waits on ticket 19.
 - M-PAiSA / MyCash as an Employer payment rail.
 - Living-in-Fiji content (guides, visa, cost of living) on or off the Seeker path.
-- Which success-critical gaps in `docs/research/fiji-job-market-and-seek-gap.md` become the next wayfinder tickets (alerts, Verification, Town synonyms, Interest log).
+
+## Decided in the launch sequence
+
+- Production Express Interest stays `wa.me` (no WhatsApp Business API). See `docs/product/launch-roadmap.md`.
+- Town clusters, honest pay, Interest, Report, share, Watch, and first-party metrics are in the product (tickets 20–27 partial/resolved). Neon + NextAuth remain human (18–19).
 
 ## Out of scope
 

@@ -1,5 +1,6 @@
 import type { Category, Listing, ListingType } from './listing'
 import { MOCK_COMPANIES, MOCK_JOBS, type Company, type Job } from './mock-data'
+import { townsMatch } from './town'
 
 export interface SearchQuery {
   query?: string
@@ -24,6 +25,14 @@ export function toListing(job: Job, company?: Company): Listing {
     town: job.town,
     category: job.category,
     pay: job.salary,
+    payAmount: job.payAmount,
+    payUnit: job.payUnit,
+    liveIn: job.liveIn,
+    startDate: job.startDate,
+    shiftNote: job.shiftNote,
+    verifiedEmployer: company?.verified ?? false,
+    language: job.language,
+    licences: job.licences,
     featured: job.featured,
     urgent: job.urgent,
     employerId: job.companyId,
@@ -51,14 +60,24 @@ function matchesQuery(listing: Listing, query: SearchQuery): boolean {
   if (!isLiveListing(listing)) return false
 
   if (query.query) {
-    const needle = query.query.toLowerCase()
-    const haystack = [listing.title, listing.description, listing.employerName]
+    const tokens = query.query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean)
+    const haystack = [
+      listing.title,
+      listing.description,
+      listing.employerName,
+      listing.town,
+      listing.category,
+      ...(listing.licences ?? []),
+    ]
       .join(' ')
       .toLowerCase()
-    if (!haystack.includes(needle)) return false
+    if (tokens.some((token) => !haystack.includes(token))) return false
   }
 
-  if (query.town && !listing.town.toLowerCase().includes(query.town.toLowerCase())) {
+  if (query.town && !townsMatch(listing.town, query.town)) {
     return false
   }
 

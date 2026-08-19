@@ -7,14 +7,26 @@ import { Input } from "@/components/ui/input"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { publishedCountForEmployer, rememberListing } from "@/components/listing-store"
+import { getEventLog } from "@/components/product-store"
 import { useAuth } from "@/lib/auth-context"
 import { createListingPost } from "@/lib/listing-post"
 import { getCompanyById } from "@/lib/mock-data"
-import { CATEGORIES, type Category, type ListingType } from "@/lib/listing"
+import { NATIONAL_MINIMUM_HOURLY_FJD } from "@/lib/pay"
+import {
+  CATEGORIES,
+  LICENCE_TAGS,
+  type Category,
+  type ListingLanguage,
+  type ListingType,
+  type PayUnit,
+} from "@/lib/listing"
 
 const TYPES: { label: string; value: ListingType }[] = [
   { label: "Full-time", value: "FULL_TIME" },
   { label: "Part-time", value: "PART_TIME" },
+  { label: "Contract", value: "CONTRACT" },
+  { label: "Temporary", value: "TEMPORARY" },
+  { label: "Internship", value: "INTERNSHIP" },
 ]
 
 export default function PostJobPage() {
@@ -25,8 +37,14 @@ export default function PostJobPage() {
   const [town, setTown] = useState("")
   const [category, setCategory] = useState<Category>("Hospitality")
   const [type, setType] = useState<ListingType>("FULL_TIME")
-  const [pay, setPay] = useState("")
-  const [whatsapp, setWhatsapp] = useState("")
+  const [payAmount, setPayAmount] = useState("")
+  const [payUnit, setPayUnit] = useState<PayUnit>("hour")
+  const [startDate, setStartDate] = useState("")
+  const [liveIn, setLiveIn] = useState(false)
+  const [shiftNote, setShiftNote] = useState("")
+  const [language, setLanguage] = useState<ListingLanguage>("English")
+  const [licences, setLicences] = useState<string[]>([])
+  const [whatsapp, setWhatsapp] = useState("+679 ")
   const [featured, setFeatured] = useState(false)
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -64,6 +82,7 @@ export default function PostJobPage() {
           id: employerId,
           name: company?.name ?? user.name,
           publishedListingCount: listingCount,
+          verified: company?.verified,
         },
         draft: {
           title,
@@ -71,12 +90,23 @@ export default function PostJobPage() {
           type,
           town,
           category,
-          pay,
+          payAmount: Number(payAmount),
+          payUnit,
+          startDate,
+          liveIn,
+          shiftNote: shiftNote || undefined,
+          language,
+          licences,
           employerWhatsApp: whatsapp,
           tier: isFreeFirstPost ? "FREE_FIRST" : featured ? "FEATURED" : "STANDARD",
         },
       })
       rememberListing(listing)
+      getEventLog().track({
+        name: "listing_publish",
+        listingId: listing.id,
+        tier: isFreeFirstPost ? "FREE_FIRST" : featured ? "FEATURED" : "STANDARD",
+      })
       router.push(`/jobs/${listing.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not publish this listing")
@@ -97,7 +127,7 @@ export default function PostJobPage() {
             Advertise a job
           </h1>
           <p className="mt-3 max-w-[36ch] text-[1.05rem] leading-relaxed text-muted">
-            Title, description, town, category, type, pay, and WhatsApp. Seekers message you directly.
+            Honest pay (FJD {NATIONAL_MINIMUM_HOURLY_FJD.toFixed(2)}/hour minimum), a start date, and a Fiji WhatsApp. Seekers message you directly — they never pay to apply.
           </p>
           <p className="mt-4 rounded-[10px] bg-surface px-3.5 py-3 text-sm text-ink">
             {isFreeFirstPost
@@ -192,17 +222,116 @@ export default function PostJobPage() {
             </select>
           </div>
 
+          <div className="mb-3.5 grid gap-2 sm:grid-cols-[1fr_8rem]">
+            <div>
+              <label htmlFor="p-pay" className="mb-1.5 block text-[0.8rem] font-semibold">
+                Pay (FJD)
+              </label>
+              <Input
+                id="p-pay"
+                type="number"
+                min={0}
+                step="0.25"
+                required
+                value={payAmount}
+                onChange={(event) => setPayAmount(event.target.value)}
+                placeholder="6.50"
+              />
+            </div>
+            <div>
+              <label htmlFor="p-unit" className="mb-1.5 block text-[0.8rem] font-semibold">
+                Unit
+              </label>
+              <select
+                id="p-unit"
+                value={payUnit}
+                onChange={(event) => setPayUnit(event.target.value as PayUnit)}
+                className="min-h-11 w-full rounded-[10px] border border-line bg-bg px-3.5 text-base"
+              >
+                <option value="hour">/hour</option>
+                <option value="day">/day</option>
+                <option value="month">/month</option>
+                <option value="year">/year</option>
+              </select>
+            </div>
+          </div>
+          <p className="mb-3.5 text-[0.78rem] text-muted">
+            We show hourly pay as a monthly equivalent using Fiji&apos;s 45-hour week. Below FJD{" "}
+            {NATIONAL_MINIMUM_HOURLY_FJD.toFixed(2)}/hour is rejected.
+          </p>
+
           <div className="mb-3.5">
-            <label htmlFor="p-pay" className="mb-1.5 block text-[0.8rem] font-semibold">
-              Pay
+            <label htmlFor="p-start" className="mb-1.5 block text-[0.8rem] font-semibold">
+              Start date
             </label>
             <Input
-              id="p-pay"
-              value={pay}
-              onChange={(event) => setPay(event.target.value)}
-              placeholder="FJ$800–1,000/mo or FJ$7.50/hr"
+              id="p-start"
+              type="date"
+              required
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
             />
           </div>
+
+          <label className="mb-3.5 flex min-h-11 items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={liveIn}
+              onChange={(event) => setLiveIn(event.target.checked)}
+            />
+            Live-in (room or village stay)
+          </label>
+
+          <div className="mb-3.5">
+            <label htmlFor="p-shift" className="mb-1.5 block text-[0.8rem] font-semibold">
+              Shift note
+            </label>
+            <Input
+              id="p-shift"
+              value={shiftNote}
+              onChange={(event) => setShiftNote(event.target.value)}
+              placeholder="Start Monday, night crush, split shift…"
+            />
+          </div>
+
+          <div className="mb-3.5">
+            <label htmlFor="p-language" className="mb-1.5 block text-[0.8rem] font-semibold">
+              Language on the job
+            </label>
+            <select
+              id="p-language"
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as ListingLanguage)}
+              className="min-h-11 w-full rounded-[10px] border border-line bg-bg px-3.5 text-base"
+            >
+              <option>English</option>
+              <option>iTaukei</option>
+              <option>Hindi</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <fieldset className="mb-3.5">
+            <legend className="mb-1.5 text-[0.8rem] font-semibold">Licences (if any)</legend>
+            <div className="flex flex-wrap gap-2">
+              {LICENCE_TAGS.map((tag) => (
+                <label key={tag} className="inline-flex min-h-11 items-center gap-1.5 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={licences.includes(tag)}
+                    onChange={(event) => {
+                      setLicences((current) =>
+                        event.target.checked
+                          ? [...current, tag]
+                          : current.filter((item) => item !== tag),
+                      )
+                    }}
+                  />
+                  {tag}
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           {!isFreeFirstPost && (
             <label className="mb-5 flex min-h-11 items-center gap-2 text-sm">

@@ -40,6 +40,7 @@ describe('jobToListing', () => {
       town: 'Nadi',
       category: 'Hospitality',
       pay: 'FJD $18,000 - $22,000/year',
+      verifiedEmployer: false,
       featured: true,
       urgent: false,
       employerId: 'c1',

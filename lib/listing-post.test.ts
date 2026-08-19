@@ -13,6 +13,7 @@ const draft: ListingDraft = {
   town: 'Lautoka',
   category: 'Retail',
   pay: 'FJD $14,000',
+  startDate: '2026-08-25',
   employerWhatsApp: '+679 3380000',
 }
 
@@ -42,7 +43,7 @@ describe('ListingPost', () => {
       status: 'ACTIVE',
       employerId: 'emp-1',
       employerName: 'Vinod Patel Group',
-      employerWhatsApp: '+679 3380000',
+      employerWhatsApp: '+679 338 0000',
     })
     expect(listing.expiresAt.startsWith('2026-08-26')).toBe(true)
     expect(listing.postedAt.startsWith('2026-08-19')).toBe(true)
@@ -78,7 +79,39 @@ describe('ListingPost', () => {
     ).rejects.toThrow()
   })
 
-  it('requires title, town, category, and employerWhatsApp', async () => {
+  it('formats structured hourly pay in FJD and rejects below FJD 5.00/hour', async () => {
+    const listing = await post.publish({
+      employer: employer(0),
+      draft: { ...draft, pay: undefined, payAmount: 8, payUnit: 'hour' },
+    })
+    expect(listing.pay).toContain('FJD')
+    expect(listing.pay).toContain('/hour')
+    expect(listing.pay).toContain('/month')
+    expect(listing.startDate).toBe('2026-08-25')
+
+    await expect(
+      post.publish({
+        employer: employer(0),
+        draft: { ...draft, pay: undefined, payAmount: 4, payUnit: 'hour' },
+      }),
+    ).rejects.toThrow(/minimum wage/)
+  })
+
+  it('normalizes a 7-digit local number to +679 and rejects non-Fiji WhatsApp', async () => {
+    const listing = await post.publish({
+      employer: employer(0),
+      draft: { ...draft, employerWhatsApp: '3380000' },
+    })
+    expect(listing.employerWhatsApp).toBe('+679 338 0000')
+    await expect(
+      post.publish({
+        employer: employer(0),
+        draft: { ...draft, employerWhatsApp: '+61 400 000 000' },
+      }),
+    ).rejects.toThrow(/Fiji number/)
+  })
+
+  it('requires title, town, category, startDate, pay, and employerWhatsApp', async () => {
     await expect(
       post.publish({
         employer: employer(0),
@@ -101,6 +134,18 @@ describe('ListingPost', () => {
       post.publish({
         employer: employer(0),
         draft: { ...draft, employerWhatsApp: '' },
+      }),
+    ).rejects.toThrow()
+    await expect(
+      post.publish({
+        employer: employer(0),
+        draft: { ...draft, startDate: '' },
+      }),
+    ).rejects.toThrow()
+    await expect(
+      post.publish({
+        employer: employer(0),
+        draft: { ...draft, pay: '' },
       }),
     ).rejects.toThrow()
   })

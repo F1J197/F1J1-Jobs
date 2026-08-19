@@ -242,7 +242,7 @@ That is “Seek quality” in Fijian context: **liquidity + trust + habit**, bui
 
 ## 10. Success tests (so this does not stay a pretty prototype)
 
-A later session should treat these as tickets, not as more homepage copy.
+Tickets `18`–`27` and `docs/product/launch-roadmap.md` are that later session. Town, pay, Interest, Report, share, Watch, and first-party metrics are in the product; Neon deploy and NextAuth still need Andrew.
 
 | Test | Pass |
 | --- | --- |

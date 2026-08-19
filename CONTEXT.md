@@ -53,3 +53,19 @@ _Avoid_: Premium, sponsored (when you mean this tier)
 **Verification**:
 A manual Employer check at launch.
 _Avoid_: KYC, badge (when you mean this check)
+
+**Interest**:
+A recorded Express Interest — Listing, Employer, time, optional first name. Not the WhatsApp message.
+_Avoid_: Application, click (when you mean this record)
+
+**Report**:
+A Seeker flag on a Listing (fee-to-apply, scam, under-minimum, unsafe).
+_Avoid_: Review, complaint (when you mean this flag)
+
+**Watch**:
+A saved Town and/or Category so new Listings can surface on return (email optional).
+_Avoid_: Alert subscription, saved search (when you mean this record)
+
+**Division**:
+Central, Western, Northern, or Eastern — a Town filter alias, not a Listing field.
+_Avoid_: Island, province (when you mean this filter)

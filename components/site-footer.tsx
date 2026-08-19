@@ -23,6 +23,12 @@ export function SiteFooter() {
           <Link href="/signup" className="min-h-11 inline-flex items-center hover:text-ink">
             Sign up
           </Link>
+          <Link href="/trust" className="min-h-11 inline-flex items-center hover:text-ink">
+            Trust
+          </Link>
+          <Link href="/admin/metrics" className="min-h-11 inline-flex items-center hover:text-ink">
+            Metrics
+          </Link>
         </div>
       </div>
     </footer>

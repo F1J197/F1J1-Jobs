@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,9 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { allListings } from "@/components/listing-store"
+import { getInterestLog } from "@/components/product-store"
+import type { Interest } from "@/lib/interest-log"
+import { formatClosesAt } from "@/components/listing-format"
 import {
   getJobById, getCompanyById, getApplicationsByUser, getApplicationsByJob
 } from "@/lib/mock-data"
@@ -20,12 +23,19 @@ import {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
+  const [interests, setInterests] = useState<Interest[]>([])
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/signin")
     }
   }, [isAuthenticated, router])
+
+  useEffect(() => {
+    if (!user) return
+    const employerId = user.companyId ?? user.id
+    setInterests(getInterestLog().listByEmployer(employerId))
+  }, [user])
 
   if (!user) {
     return null
@@ -230,12 +240,12 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Views</CardTitle>
+              <CardTitle className="text-sm font-medium">Interests</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">247</div>
-              <p className="mt-1 text-xs text-muted">This month</p>
+              <div className="text-2xl font-bold">{interests.length}</div>
+              <p className="mt-1 text-xs text-muted">Express Interest</p>
             </CardContent>
           </Card>
           <Card>
@@ -275,6 +285,7 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 {myListings.map((listing) => {
                   const applications = getApplicationsByJob(listing.id)
+                  const listingInterests = interests.filter((item) => item.listingId === listing.id)
                   const tier = listing.featured ? "Featured" : "Standard"
                   return (
                     <div key={listing.id} className="rounded-[14px] border border-line p-4">
@@ -288,14 +299,23 @@ export default function DashboardPage() {
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              Expires {listing.expiresAt}
+                              {formatClosesAt(listing.expiresAt)}
                             </span>
                             <span>{tier}</span>
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              {applications.length} applicant(s)
+                              {listingInterests.length} interest · {applications.length} profile
                             </span>
                           </div>
+                          {listingInterests.length > 0 && (
+                            <ul className="mt-3 space-y-1 text-sm text-ink">
+                              {listingInterests.slice(0, 5).map((item) => (
+                                <li key={item.id}>
+                                  {item.seekerName || "Seeker"} expressed interest
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                         <div className="flex gap-2">
                           <Link href={`/jobs/${listing.id}`}>

@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { createInMemoryListingCatalog, listingsFromMock } from "@/lib/listing-catalog"
-import { formatListingType } from "@/components/listing-format"
+import { formatListingPay, formatListingType } from "@/components/listing-format"
+import { DIVISIONS } from "@/lib/town"
 
 export default async function Home() {
   const preview = (await createInMemoryListingCatalog(listingsFromMock()).search({})).slice(0, 4)
@@ -55,8 +56,19 @@ export default async function Home() {
           </div>
         </form>
         <p className="mt-2 max-w-xl text-[0.78rem] text-muted">
-          Type any village, town, island, or area. Matching is free-text — not limited to a fixed list of islands.
+          Denarau means Nadi. Nasinu sits with Suva. Or pick a Division.
         </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {DIVISIONS.map((division) => (
+            <Link
+              key={division}
+              href={`/jobs?town=${encodeURIComponent(division)}`}
+              className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3.5 text-sm font-semibold"
+            >
+              {division}
+            </Link>
+          ))}
+        </div>
 
         <div className="mt-5 flex flex-wrap gap-2.5">
           <Link href="/jobs">
@@ -95,7 +107,9 @@ export default async function Home() {
                   {listing.employerName} · {listing.town}
                 </p>
                 <p className="mt-1.5 text-sm text-muted">
-                  {listing.pay} · {formatListingType(listing.type)}
+                  {formatListingPay(listing)} · {formatListingType(listing.type)}
+                  {listing.liveIn ? " · Live-in" : ""}
+                  {listing.verifiedEmployer ? " · Verified" : ""}
                 </p>
               </Link>
             ))}

@@ -68,6 +68,26 @@ const FIXTURES: Listing[] = [
     employerName: 'Fletcher Construction',
   }),
   listing({
+    id: 'nasinu-retail',
+    title: 'Shop Assistant',
+    description: 'Counter sales in Hindi and English',
+    town: 'Nasinu',
+    category: 'Retail',
+    type: 'PART_TIME',
+    featured: false,
+    employerName: 'Jack\'s of Fiji',
+  }),
+  listing({
+    id: 'labasa-agri',
+    title: 'Cane Field Hand',
+    description: 'Harvest support on the Vanua Levu cane belt',
+    town: 'Labasa',
+    category: 'Agriculture',
+    type: 'TEMPORARY',
+    featured: false,
+    employerName: 'Fiji Sugar Corporation',
+  }),
+  listing({
     id: 'closed-suva',
     title: 'Closed Shop Manager',
     description: 'This listing is closed and must never appear',
@@ -90,12 +110,14 @@ describe('createInMemoryListingCatalog', () => {
       'plain-suva-retail',
       'nadi-hospitality',
       'lautoka-construction',
+      'nasinu-retail',
+      'labasa-agri',
     ])
   })
 
   it('matches query against title case-insensitively', async () => {
     const results = await catalog.search({ query: 'SHOP' })
-    expect(results.map((item) => item.id)).toEqual(['feat-suva-retail'])
+    expect(results.map((item) => item.id)).toEqual(['feat-suva-retail', 'nasinu-retail'])
   })
 
   it('matches query against description case-insensitively', async () => {
@@ -123,7 +145,7 @@ describe('createInMemoryListingCatalog', () => {
 
   it('matches type exactly', async () => {
     const results = await catalog.search({ type: 'PART_TIME' })
-    expect(results.map((item) => item.id)).toEqual(['plain-suva-retail'])
+    expect(results.map((item) => item.id)).toEqual(['plain-suva-retail', 'nasinu-retail'])
   })
 
   it('combines query, town, category, and type with AND', async () => {
@@ -151,6 +173,7 @@ describe('createInMemoryListingCatalog', () => {
     expect(results.map((item) => item.id)).toEqual([
       'feat-suva-retail',
       'plain-suva-retail',
+      'nasinu-retail',
     ])
     expect(results[0]?.featured).toBe(true)
     expect(results[1]?.featured).toBe(false)
@@ -161,6 +184,27 @@ describe('createInMemoryListingCatalog', () => {
     expect(found?.title).toBe('Housekeeper')
     expect(await catalog.getById('closed-suva')).toBeUndefined()
     expect(await catalog.getById('missing')).toBeUndefined()
+  })
+
+  it('treats Denarau as Nadi and Nasinu as Greater Suva', async () => {
+    const denarau = await catalog.search({ town: 'Denarau' })
+    expect(denarau.map((item) => item.id)).toEqual(['nadi-hospitality'])
+    const greaterSuva = await catalog.search({ town: 'Suva', category: 'Retail' })
+    expect(greaterSuva.map((item) => item.id)).toEqual([
+      'feat-suva-retail',
+      'plain-suva-retail',
+      'nasinu-retail',
+    ])
+  })
+
+  it('matches a Western Division search to Nadi and Lautoka, not Suva or Labasa', async () => {
+    const results = await catalog.search({ town: 'Western' })
+    expect(results.map((item) => item.id)).toEqual(['nadi-hospitality', 'lautoka-construction'])
+  })
+
+  it('matches query words against Town and Category so Nadi hospitality is findable', async () => {
+    const results = await catalog.search({ query: 'Nadi hospitality' })
+    expect(results.map((item) => item.id)).toEqual(['nadi-hospitality'])
   })
 
   it('hides listings whose expiresAt is in the past', async () => {
