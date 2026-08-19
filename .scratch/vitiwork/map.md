@@ -33,6 +33,7 @@ A published VitiWork spec plus a ticketed path so a Fijian Seeker can find a Lis
 - Facebook login details (app review, which fields, fallback when Facebook is down).
 - M-PAiSA / MyCash as an Employer payment rail.
 - Living-in-Fiji content (guides, visa, cost of living) on or off the Seeker path.
+- Which success-critical gaps in `docs/research/fiji-job-market-and-seek-gap.md` become the next wayfinder tickets (alerts, Verification, Town synonyms, Interest log).
 
 ## Out of scope
 

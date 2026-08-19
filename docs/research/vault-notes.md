@@ -10,3 +10,5 @@ Copied excerpts live under `docs/product/`. The vault itself was not edited.
 | competitor-fijijobs | `docs/product/competitor-fijijobs.md` | Do not ship as FijiJobs — [fijijobs.com](https://fijijobs.com) is a competitor |
 
 This conversation widened the Seeker from "casual/gig only" to **all roles**. That override lives in `CONTEXT.md`, not in the vault copies.
+
+Official labour statistics and the Seek gap analysis (what to add next) live in `docs/research/fiji-job-market-and-seek-gap.md`.
