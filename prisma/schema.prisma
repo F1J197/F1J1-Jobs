@@ -127,6 +127,9 @@ model Job {
   // Job details
   type            JobType
   location        String
+  category        String?
+  town            String?
+  whatsappPhone   String?
   salary          String?
   industry        String?
   experienceLevel String?       // Entry, Mid, Senior

@@ -1,18 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Facebook } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard'
+  const redirect = searchParams.get("redirect") || "/dashboard"
   const { login } = useAuth()
 
   const [email, setEmail] = useState("")
@@ -20,8 +19,8 @@ export default function SignInPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     setError("")
     setLoading(true)
 
@@ -35,10 +34,10 @@ export default function SignInPage() {
     }
   }
 
-  const handleDemoLogin = async (role: 'seeker' | 'employer') => {
+  const handleDemoLogin = async (role: "seeker" | "employer") => {
     setLoading(true)
-    const demoEmail = role === 'seeker' ? 'seeker@example.com' : 'employer@example.com'
-    const success = await login(demoEmail, 'demo')
+    const demoEmail = role === "seeker" ? "seeker@example.com" : "employer@example.com"
+    const success = await login(demoEmail, "demo")
 
     if (success) {
       router.push(redirect)
@@ -46,38 +45,39 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center bg-bg p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-blue-600">
-            FijiJobs
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-ink text-xs font-bold text-surface">
+              VW
+            </span>
+            VitiWork
           </Link>
-          <p className="mt-2 text-gray-600">Welcome back!</p>
+          <p className="mt-2 text-muted">Welcome back</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Sign In</CardTitle>
+            <CardTitle>Sign in</CardTitle>
             <CardDescription>
-              Demo: Use seeker@example.com or employer@example.com
+              Demo: seeker@example.com or employer@example.com
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Quick Demo Buttons */}
-            <div className="bg-blue-50 p-4 rounded-lg space-y-2">
-              <p className="text-sm font-medium text-gray-700">Quick Demo Login:</p>
+            <div className="space-y-2 rounded-[10px] bg-bg p-4">
+              <p className="text-sm font-medium text-ink">Quick demo login</p>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleDemoLogin('seeker')}
+                  onClick={() => handleDemoLogin("seeker")}
                   variant="outline"
                   className="flex-1"
                   disabled={loading}
                 >
-                  Job Seeker
+                  Seeker
                 </Button>
                 <Button
-                  onClick={() => handleDemoLogin('employer')}
+                  onClick={() => handleDemoLogin("employer")}
                   variant="outline"
                   className="flex-1"
                   disabled={loading}
@@ -87,23 +87,12 @@ export default function SignInPage() {
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or sign in with email</span>
-              </div>
-            </div>
-
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
 
-            {/* Email/Password Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
@@ -114,57 +103,53 @@ export default function SignInPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                   disabled={loading}
                 />
               </div>
-
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-sm font-medium">
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Forgot?
-                  </Link>
-                </div>
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(event) => setPassword(event.target.value)}
                   required
                   disabled={loading}
                 />
               </div>
-
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? 'Signing In...' : 'Sign In'}
+                {loading ? "Signing in…" : "Sign in"}
               </Button>
             </form>
 
-            {/* Sign Up Link */}
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-blue-600 font-medium hover:underline">
+              <Link href="/signup" className="font-medium text-accent hover:underline">
                 Sign up
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-gray-600 hover:text-blue-600">
-            ← Back to Home
+          <Link href="/" className="inline-flex min-h-11 items-center text-sm text-muted hover:text-ink">
+            ← Back to home
           </Link>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+      <SignInForm />
+    </Suspense>
   )
 }

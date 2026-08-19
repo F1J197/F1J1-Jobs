@@ -10,10 +10,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          // Mobile-first: 44px minimum height for tap targets
-          "flex h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base",
-          "placeholder:text-gray-400",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600",
+          "flex min-h-11 w-full rounded-[10px] border border-line bg-bg px-3.5 py-2.5 text-base text-ink",
+          "placeholder:text-muted",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/15",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
