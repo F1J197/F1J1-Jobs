@@ -1,19 +1,27 @@
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#2563eb",
-}
+  themeColor: "#0f5c56",
+};
 
 export const metadata: Metadata = {
-  title: "FijiJobs - Find Your Dream Job in Fiji",
-  description: "Fiji's mobile-first job platform connecting top talent with leading employers. Fast, simple, and built for your phone.",
-  keywords: ["fiji jobs", "careers fiji", "employment fiji", "jobs in fiji", "fiji vacancies"],
-  authors: [{ name: "FijiJobs" }],
+  title: "VitiWork — Find Work in Fiji",
+  description:
+    "Find Work in Fiji. Search roles from any island or town. Message employers on WhatsApp.",
+  keywords: ["jobs in fiji", "vitiwork", "fiji careers", "whatsapp jobs fiji"],
+  authors: [{ name: "VitiWork" }],
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
@@ -22,10 +30,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_FJ",
-    url: "https://fijijobs.com",
-    title: "FijiJobs - Find Your Dream Job in Fiji",
-    description: "Fiji's mobile-first job platform connecting top talent with leading employers.",
-    siteName: "FijiJobs",
+    url: "https://vitiwork.example",
+    title: "VitiWork — Find Work in Fiji",
+    description:
+      "Find Work in Fiji. Search roles from any island or town. Message employers on WhatsApp.",
+    siteName: "VitiWork",
   },
 };
 
@@ -36,10 +45,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className={`${plusJakarta.className} font-sans antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

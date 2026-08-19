@@ -17,7 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Load user from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('fijijobs_user')
+    const storedUser = localStorage.getItem('vitiwork_user') || localStorage.getItem('fijijobs_user')
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
@@ -29,7 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (foundUser) {
       setUser(foundUser)
-      localStorage.setItem('fijijobs_user', JSON.stringify(foundUser))
+      localStorage.setItem('vitiwork_user', JSON.stringify(foundUser))
+      localStorage.removeItem('fijijobs_user')
       return true
     }
 
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
+    localStorage.removeItem('vitiwork_user')
     localStorage.removeItem('fijijobs_user')
   }
 

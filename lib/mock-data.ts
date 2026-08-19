@@ -1,5 +1,6 @@
-// Mock Data for FijiJobs Prototype
-// This provides a complete working demo without a database
+// In-memory demo Listings for VitiWork (no database required)
+
+import type { Category } from './listing'
 
 export interface User {
   id: string
@@ -34,6 +35,9 @@ export interface Job {
   responsibilities: string
   type: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'TEMPORARY' | 'INTERNSHIP'
   location: string
+  town: string
+  category: Category
+  whatsappPhone: string
   salary: string
   industry: string
   experienceLevel: 'Entry' | 'Mid' | 'Senior'
@@ -144,6 +148,61 @@ export const MOCK_COMPANIES: Company[] = [
     location: 'Suva',
     verified: true,
     tier: 'PREMIUM'
+  },
+  {
+    id: 'c9',
+    name: 'Fletcher Construction Fiji',
+    logo: '/companies/fletcher.png',
+    description: 'Major civil and building contractor delivering roads, ports, and commercial projects across Fiji.',
+    industry: 'Construction',
+    website: 'https://fletcherconstruction.com',
+    location: 'Lautoka',
+    verified: true,
+    tier: 'BASIC'
+  },
+  {
+    id: 'c10',
+    name: 'Fiji Sugar Corporation',
+    logo: '/companies/fsc.png',
+    description: "Fiji's sugar miller, supporting cane growers from Lautoka, Ba, Rakiraki, and Labasa.",
+    industry: 'Agriculture',
+    website: 'https://fsc.com.fj',
+    location: 'Lautoka',
+    verified: true,
+    tier: 'BASIC'
+  },
+  {
+    id: 'c11',
+    name: 'Pacific Transport Limited',
+    logo: '/companies/pacifictransport.png',
+    description: 'Long-established bus operator serving Suva, Nausori, and the Coral Coast.',
+    industry: 'Transport',
+    website: 'https://pacifictransport.com.fj',
+    location: 'Suva',
+    verified: true,
+    tier: 'FREE'
+  },
+  {
+    id: 'c12',
+    name: 'Energy Fiji Limited',
+    logo: '/companies/efl.png',
+    description: "Fiji's electricity utility, maintaining generation, transmission, and retail networks nationwide.",
+    industry: 'Utilities',
+    website: 'https://efl.com.fj',
+    location: 'Suva',
+    verified: true,
+    tier: 'PREMIUM'
+  },
+  {
+    id: 'c13',
+    name: 'Fiji Revenue & Customs Service',
+    logo: '/companies/frcs.png',
+    description: 'Government agency responsible for tax and customs administration across Fiji.',
+    industry: 'Government',
+    website: 'https://frcs.org.fj',
+    location: 'Suva',
+    verified: true,
+    tier: 'FREE'
   }
 ]
 
@@ -154,6 +213,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Front Desk Receptionist',
     companyId: 'c1',
     location: 'Denarau Island, Nadi',
+    town: 'Nadi',
+    category: 'Hospitality',
+    whatsappPhone: '+679 675 1111',
     type: 'FULL_TIME',
     salary: 'FJD $18,000 - $22,000/year',
     industry: 'Hospitality & Tourism',
@@ -172,6 +234,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Retail Sales Associate',
     companyId: 'c2',
     location: 'Suva',
+    town: 'Suva',
+    category: 'Retail',
+    whatsappPhone: '+679 338 5999',
     type: 'FULL_TIME',
     salary: 'FJD $15,000 - $20,000/year',
     industry: 'Retail',
@@ -190,6 +255,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Customer Service Representative',
     companyId: 'c3',
     location: 'Lautoka',
+    town: 'Lautoka',
+    category: 'Professional',
+    whatsappPhone: '+679 331 2000',
     type: 'FULL_TIME',
     salary: 'FJD $18,000/year',
     industry: 'Telecommunications',
@@ -208,6 +276,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Chef de Partie',
     companyId: 'c4',
     location: 'Denarau Island, Nadi',
+    town: 'Nadi',
+    category: 'Hospitality',
+    whatsappPhone: '+679 675 6800',
     type: 'FULL_TIME',
     salary: 'FJD $22,000 - $28,000/year',
     industry: 'Hospitality & Tourism',
@@ -226,6 +297,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Accounts Clerk',
     companyId: 'c5',
     location: 'Suva',
+    town: 'Suva',
+    category: 'Professional',
+    whatsappPhone: '+679 331 3000',
     type: 'FULL_TIME',
     salary: 'FJD $16,000 - $20,000/year',
     industry: 'Retail',
@@ -244,6 +318,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Marketing Coordinator',
     companyId: 'c6',
     location: 'Suva',
+    town: 'Suva',
+    category: 'Professional',
+    whatsappPhone: '+679 331 1400',
     type: 'FULL_TIME',
     salary: 'FJD $25,000 - $32,000/year',
     industry: 'Financial Services',
@@ -262,6 +339,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Cabin Crew',
     companyId: 'c7',
     location: 'Nadi',
+    town: 'Nadi',
+    category: 'Hospitality',
+    whatsappPhone: '+679 672 0777',
     type: 'FULL_TIME',
     salary: 'FJD $24,000 - $30,000/year',
     industry: 'Aviation',
@@ -280,6 +360,9 @@ export const MOCK_JOBS: Job[] = [
     title: 'Personal Banker',
     companyId: 'c8',
     location: 'Suva',
+    town: 'Suva',
+    category: 'Professional',
+    whatsappPhone: '+679 331 3333',
     type: 'FULL_TIME',
     salary: 'FJD $28,000 - $35,000/year',
     industry: 'Banking',
@@ -292,6 +375,111 @@ export const MOCK_JOBS: Job[] = [
     responsibilities: '• Build and maintain customer relationships\n• Identify customer financial needs\n• Promote and sell banking products\n• Process loan applications\n• Achieve monthly targets',
     postedAt: '6 days ago',
     expiresAt: '22 days'
+  },
+  {
+    id: 'j9',
+    title: 'Formwork Carpenter',
+    companyId: 'c9',
+    location: 'Lautoka',
+    town: 'Lautoka',
+    category: 'Construction',
+    whatsappPhone: '+679 666 2211',
+    type: 'FULL_TIME',
+    salary: 'FJD $20,000 - $26,000/year',
+    industry: 'Construction',
+    experienceLevel: 'Mid',
+    status: 'ACTIVE',
+    featured: false,
+    urgent: true,
+    description: 'Fletcher Construction Fiji needs experienced carpenters for a commercial build in Lautoka.',
+    requirements: '• Trade certificate or equivalent site experience\n• Comfortable with heights and formwork\n• Own basic hand tools\n• Able to work rostered Saturdays',
+    responsibilities: '• Build and strip formwork to spec\n• Read simple drawings\n• Keep the work area tidy and safe\n• Support the site supervisor',
+    postedAt: '2 days ago',
+    expiresAt: '20 days'
+  },
+  {
+    id: 'j10',
+    title: 'Cane Field Supervisor',
+    companyId: 'c10',
+    location: 'Labasa',
+    town: 'Labasa',
+    category: 'Agriculture',
+    whatsappPhone: '+679 881 0155',
+    type: 'FULL_TIME',
+    salary: 'FJD $18,000 - $24,000/year',
+    industry: 'Agriculture',
+    experienceLevel: 'Mid',
+    status: 'ACTIVE',
+    featured: false,
+    urgent: false,
+    description: 'Fiji Sugar Corporation is hiring a field supervisor to work with growers on the Vanua Levu cane belt.',
+    requirements: '• Experience in cane or crop production\n• Valid driving licence\n• Comfortable working outdoors\n• iTaukei or Hindi an advantage',
+    responsibilities: '• Visit farms and advise on harvest timing\n• Coordinate cane supply to the mill\n• Record grower issues and yields\n• Support extension officers',
+    postedAt: '4 days ago',
+    expiresAt: '26 days'
+  },
+  {
+    id: 'j11',
+    title: 'Passenger Bus Driver',
+    companyId: 'c11',
+    location: 'Suva',
+    town: 'Suva',
+    category: 'Drivers',
+    whatsappPhone: '+679 338 2211',
+    type: 'PART_TIME',
+    salary: 'FJD $8 - $10/hour',
+    industry: 'Transport',
+    experienceLevel: 'Entry',
+    status: 'ACTIVE',
+    featured: false,
+    urgent: true,
+    description: 'Pacific Transport needs part-time drivers for Suva–Nausori and evening city runs.',
+    requirements: '• Valid PSV licence\n• Clean driving record\n• Patient with passengers\n• Willing to work split shifts',
+    responsibilities: '• Drive assigned routes on time\n• Collect fares and issue tickets\n• Keep the bus clean and report faults\n• Follow LTA and company safety rules',
+    postedAt: '1 day ago',
+    expiresAt: '14 days'
+  },
+  {
+    id: 'j12',
+    title: 'Licensed Electrician',
+    companyId: 'c12',
+    location: 'Nadi',
+    town: 'Nadi',
+    category: 'Trades',
+    whatsappPhone: '+679 331 3330',
+    type: 'FULL_TIME',
+    salary: 'FJD $22,000 - $30,000/year',
+    industry: 'Utilities',
+    experienceLevel: 'Mid',
+    status: 'ACTIVE',
+    featured: true,
+    urgent: false,
+    description: 'Energy Fiji Limited is recruiting licensed electricians for the Western network around Nadi.',
+    requirements: '• Fiji electrical licence\n• Experience on overhead or domestic work\n• Comfortable with call-outs\n• Safety-first attitude',
+    responsibilities: '• Install and repair lines and meters\n• Respond to faults and outages\n• Complete job sheets accurately\n• Mentor apprentices on site',
+    postedAt: '3 days ago',
+    expiresAt: '27 days'
+  },
+  {
+    id: 'j13',
+    title: 'Clerical Officer',
+    companyId: 'c13',
+    location: 'Suva',
+    town: 'Suva',
+    category: 'Government',
+    whatsappPhone: '+679 324 3000',
+    type: 'FULL_TIME',
+    salary: 'FJD $16,000 - $21,000/year',
+    industry: 'Government',
+    experienceLevel: 'Entry',
+    status: 'ACTIVE',
+    featured: false,
+    urgent: false,
+    description: 'Fiji Revenue & Customs Service has an opening for a clerical officer at Revenue House, Suva.',
+    requirements: '• Form 7 or diploma\n• Accurate data entry\n• Customer-facing manner\n• Fiji citizen',
+    responsibilities: '• Receive and register taxpayer documents\n• Maintain counter queues\n• File and retrieve records\n• Support senior officers at peak times',
+    postedAt: '5 days ago',
+    expiresAt: '25 days'
   }
 ]
 

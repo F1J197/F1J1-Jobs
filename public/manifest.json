@@ -1,11 +1,11 @@
 {
-  "name": "FijiJobs - Find Jobs in Fiji",
-  "short_name": "FijiJobs",
-  "description": "Fiji's mobile-first job platform",
+  "name": "VitiWork — Find Work in Fiji",
+  "short_name": "VitiWork",
+  "description": "Find Work in Fiji. Search roles from any island or town. Message employers on WhatsApp.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#f6f5f2",
+  "theme_color": "#0f5c56",
   "orientation": "portrait-primary",
   "icons": [
     {
